@@ -132,3 +132,34 @@ export const updateCourse = (course) => {
         }
     };
 };
+// Fetch Course by ID Actions
+export const fetchCourseByIdRequest = () => ({
+    type: CourseActionTypes.FETCH_COURSE_BY_ID_REQUEST,
+});
+
+export const fetchCourseByIdSuccess = (course) => ({
+    type: CourseActionTypes.FETCH_COURSE_BY_ID_SUCCESS,
+    payload: course,
+});
+
+export const fetchCourseByIdFailure = (error) => ({
+    type: CourseActionTypes.FETCH_COURSE_BY_ID_FAILURE,
+    payload: error,
+});
+
+export const fetchCourseById = (courseId) => {
+    return async (dispatch) => {
+        dispatch(fetchCourseByIdRequest());
+        try {
+            const token = getToken();
+            const response = await axios.get(`${API_URL}/courses/${courseId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            dispatch(fetchCourseByIdSuccess(response.data));
+        } catch (error) {
+            dispatch(fetchCourseByIdFailure(error.message));
+        }
+    };
+};

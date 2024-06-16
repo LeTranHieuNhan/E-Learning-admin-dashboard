@@ -1,165 +1,118 @@
-import { Dialog, DialogPanel } from "@headlessui/react";
-import { FileUpload } from "primereact/fileupload";
-import React from "react";
+import {Dialog, DialogPanel} from "@headlessui/react";
+import {FileUpload} from "primereact/fileupload";
+import React, {useState, useEffect} from "react";
+import axios from "axios";
 
-export const CreateStudent = ({ isOpen, setIsOpen }) => {
+export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create", student = null}) => {
+    const [studentData, setStudentData] = useState({
+        avatar: "",
+        name: "",
+        email: "",
+        location: "United States",
+        bio: "",
+        occupation: "",
+        password: "",
+        confirmPassword: ""
+    });
+
+    const [passwordError, setPasswordError] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        if (student) {
+            setStudentData({
+                ...student,
+                avatar: student.avatar || "", // Assuming avatar is the image URL
+                password: "",
+                confirmPassword: ""
+            });
+        }
+    }, [student]);
+
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+        setStudentData({...studentData, [name]: value});
+    };
+
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0]; // Corrected file access
+        console.log("File selected:", file)
+
+        if (!file) return;
+
+        setIsUploading(true); // Start the loading state
+
+        const formData = new FormData();
+        formData.append("image", file); // Use 'image' to match backend parameter
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/v1/files/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            console.log("Upload successful:", response.data);
+
+            if (response.data) {
+                setStudentData({...studentData, avatar: response.data});
+            } else {
+                console.error("Upload successful, but no URL returned");
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        } finally {
+            setIsUploading(false); // End the loading state
+        }
+    };
+
+    const handleRemoveImage = async () => {
+
+
+        console.log("Image removed successfully");
+
+        // Clear the image URL from the state
+        setStudentData({...studentData, studentImg: ""});
+
+    };
+
+    const handleSubmit = () => {
+        if (studentData.password !== studentData.confirmPassword) {
+            setPasswordError("Passwords do not match");
+            return;
+        }
+        onCreate(studentData);
+        setPasswordError(""); // Reset password error if passwords match
+    };
+
     return (
         <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed inset-0 z-50 overflow-y-auto">
             {/* Overlay */}
             <div className="fixed inset-0 bg-black opacity-50"></div>
 
             <div className="flex items-center justify-center min-h-screen">
-                <DialogPanel className="relative z-10 space-y-4 border rounded-md shadow-md bg-white p-6 w-[752px] h-[683px]">
+                <DialogPanel
+                    className="relative z-10 space-y-4 border rounded-md shadow-md bg-white p-6 w-[752px] h-auto">
                     <div className="grid grid-cols-3">
                         <div className="col-span-1">
                             <div className="flex gap-2 items-center p-1">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5 text-[#6E75D1FF] font-bold"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                    />
-                                </svg>
-                                <h1 className="text-[#6E75D1FF] text-[12px] leading-[20px] font-sans font-bold">
-                                    Profile
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5 text-black font-bold"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-                                    />
-                                </svg>
-                                <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Password
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                                    />
-                                </svg>
-                                <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Notifications
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                                    />
-                                </svg>
-                                <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Export data
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5 text-black font-bold"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-                                    />
-                                </svg>
-                                <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Plugins
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1 border-b-2">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                    />
-                                </svg>
-                                <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Save chat history
-                                </h1>
-                            </div>
-                            <div className="flex gap-2 items-center p-1 mt-[40px]">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5 text-[#DE3B40FF] font-bold"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                                    />
-                                </svg>
-                                <h1 className="text-[#DE3B40FF] text-[12px] leading-[20px] font-sans font-normal">
-                                    Delete your account
-                                </h1>
+                                {/* Icons and labels */}
                             </div>
                         </div>
                         <div className="col-span-2">
                             <div className="ml-[48px]">
                                 <h1 className="text-[32px] leading-[48px] font-sans font-bold">
-                                    Edit profile
+                                    {actionName} User
                                 </h1>
                                 <h1 className="text-[14px] leading-[22px] font-sans font-bold mt-[16px]">
                                     Profile photo
                                 </h1>
-                                <div className="mt-[16px] flex">
+                                <div className="mt-[16px] flex gap-12">
                                     <img
-                                        className="h-[100px] w-[100px] rounded-lg border-4 border-white dark:border-gray-800 "
-                                        src="https://randomuser.me/api/portraits/women/21.jpg"
+                                        className="h-[100px] w-[100px] rounded-lg border-4 border-white dark:border-gray-800"
+                                        src={studentData.avatar || ""}
                                         alt="Profile"
-                                    ></img>
+                                    />
                                     <ul>
                                         <h1 className="text-[#171A1FFF] text-[14px] leading-[22px] font-sans font-normal">
                                             Upload your photo
@@ -167,56 +120,80 @@ export const CreateStudent = ({ isOpen, setIsOpen }) => {
                                         <h1 className="text-[#565E6CFF] text-[12px] leading-[20px] font-sans font-normal mt-[8px]">
                                             Your photo should be in PNG or JPG format
                                         </h1>
-                                        <div className="flex mt-[8px]">
-                                            <FileUpload
+                                        <div className="flex mt-[8px] gap-4">
+                                            <input
                                                 className="text-[12px] leading-[20px] font-sans font-normal rounded border-[1px] p-2 items-center justify-center border-[#171A1FFF] border-solid"
-                                                mode="basic"
-                                                url="/api/upload"
-                                                accept="image/*"
-                                                maxFileSize={1000000}
+                                                type="file"
+                                                onChange={handleFileUpload}
+                                                disabled={isUploading} // Disable during upload or remove
                                             />
-                                            <button className="text-[#9095A0FF] text-[12px] leading-[20px] font-sans font-normal rounded p-2 items-center justify-center ">
+                                            <button
+                                                className="text-[#9095A0FF] text-[12px] leading-[20px] font-sans font-normal rounded p-2 items-center justify-center"
+                                                onClick={handleRemoveImage}
+                                                disabled={isUploading} // Disable during upload or remove
+                                            >
                                                 Remove
                                             </button>
                                         </div>
+                                        {isUploading && (
+                                            <p className="text-blue-500 text-xs mt-2">
+                                                Uploading...
+                                            </p>
+                                        )}
+
                                     </ul>
                                 </div>
                                 <div className="mt-[20px]">
-                                    <form action="" className="space-y-4">
+                                    <form className="space-y-4">
                                         <div>
-                                            <label
-                                                htmlFor="name"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold "
-                                            >
+                                            <label htmlFor="name"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Full name
                                             </label>
                                             <input
                                                 type="text"
+                                                name="name"
+                                                value={studentData.name}
+                                                onChange={handleChange}
                                                 className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label
-                                                htmlFor="email"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold "
-                                            >
+                                            <label htmlFor="email"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Email
                                             </label>
                                             <input
                                                 type="email"
-                                                className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2 "
+                                                name="email"
+                                                value={studentData.email}
+                                                onChange={handleChange}
+                                                className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label
-                                                htmlFor="location"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold "
-                                            >
+                                            <label htmlFor="occupation"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                Occupation
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="occupation"
+                                                value={studentData.email}
+                                                onChange={handleChange}
+                                                className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
+                                            />
+                                        </div>
+                                        <div className="mt-[16px]">
+                                            <label htmlFor="location"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Location
                                             </label>
                                             <select
-                                                id="countries"
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                name="location"
+                                                value={studentData.location}
+                                                onChange={handleChange}
+                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             >
                                                 <option>United States</option>
                                                 <option>Canada</option>
@@ -225,13 +202,47 @@ export const CreateStudent = ({ isOpen, setIsOpen }) => {
                                             </select>
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label className="block text-[14px] leading-[22px] font-sans font-bold ">
-                                                About me
+                                            <label className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                Bio
                                             </label>
                                             <textarea
+                                                name="bio"
+                                                value={studentData.bio}
+                                                onChange={handleChange}
                                                 className="w-full block text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
                                                 rows="3"
                                             ></textarea>
+                                        </div>
+                                        <div className="mt-[16px]">
+                                            <label htmlFor="password"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                value={studentData.password}
+                                                onChange={handleChange}
+                                                className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
+                                            />
+                                        </div>
+                                        <div className="mt-[16px]">
+                                            <label htmlFor="confirmPassword"
+                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                Confirm Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                name="confirmPassword"
+                                                value={studentData.confirmPassword}
+                                                onChange={handleChange}
+                                                className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
+                                            />
+                                            {passwordError && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {passwordError}
+                                                </p>
+                                            )}
                                         </div>
                                     </form>
                                 </div>
@@ -240,14 +251,16 @@ export const CreateStudent = ({ isOpen, setIsOpen }) => {
                                 <button
                                     onClick={() => setIsOpen(false)}
                                     className="h-[36px] text-[14px] leading-[22px] font-sans font-normal text-[#9095A0FF]"
+                                    disabled={isUploading} // Disable during upload or remove
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={handleSubmit}
                                     className="h-[36px] w-[117px] text-[14px] leading-[22px] font-sans font-normal text-[#FFFFFFFF] bg-[#171A1FFF] rounded-md"
+                                    disabled={isUploading} // Disable during upload or remove
                                 >
-                                    Save profile
+                                    {actionName}
                                 </button>
                             </div>
                         </div>

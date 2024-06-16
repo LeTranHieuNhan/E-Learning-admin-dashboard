@@ -5,7 +5,6 @@ import CourseCard from "../components/CourseCard";
 function CourseManagement() {
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
       <CourseCard/>
     </div>
   );

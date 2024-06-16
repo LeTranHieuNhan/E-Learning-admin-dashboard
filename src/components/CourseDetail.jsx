@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchCourseById} from "../redux/actions/courseAction";
 
 const CourseDetail = () => {
   const { courseName } = useParams();
   const [showAlert, setShowAlert] = useState(false);
+  const dispatch = useDispatch();
 
+  const course = useSelector(state => state.courses.course);
+  console.log(course)
+  useEffect(() => {
+    if (courseName) {
+      dispatch(fetchCourseById(courseName));
+    }
+  }, [courseName, dispatch]);
   const handleClick = () => {
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 5000);
   };
 
   return (
-    <div className="relative p-6 w-full max-w-6xl">
+    <div className="relative p-6 w-full max-w-6xl container mx-auto">
       <CourseNavbar />
       <div className="mb-6 relative bg-[#32AC71FF] w-full h-[200px] rounded-lg shadow-md p-4">
         <h1 className="text-3xl font-bold text-white absolute bottom-4 left-4">
-          {courseName}
+          {course?.title}
         </h1>
         <Link
           to="/CourseEdit"

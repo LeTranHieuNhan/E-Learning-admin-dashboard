@@ -5,7 +5,6 @@ import StudentList from "../components/StudentList";
 function StudentDashboard() {
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
       <StudentList />
     </div>
   );

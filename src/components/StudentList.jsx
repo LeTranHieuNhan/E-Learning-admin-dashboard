@@ -46,10 +46,9 @@ const StudentList = () => {
     }, [dispatch]);
 
     const handleCreateStudent = (newStudent) => {
+        console.log(newStudent)
         dispatch(createUser(newStudent));
         setIsOpen(false);
-        // Optionally, you may want to update the student list immediately after creation
-        // dispatch(fetchUsers());
     };
 
     return (

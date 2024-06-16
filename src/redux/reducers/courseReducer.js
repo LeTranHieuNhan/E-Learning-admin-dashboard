@@ -1,9 +1,8 @@
-// courseReducer.js
-
-import {CourseActionTypes} from "../actions/actionTypes";
+import { CourseActionTypes } from '../actions/actionTypes';
 
 const initialState = {
     courses: [],
+    course: null,
     loading: false,
     error: null,
 };
@@ -11,6 +10,7 @@ const initialState = {
 const courseReducer = (state = initialState, action) => {
     switch (action.type) {
         case CourseActionTypes.FETCH_COURSE_REQUEST:
+        case CourseActionTypes.FETCH_COURSE_BY_ID_REQUEST:
         case CourseActionTypes.CREATE_COURSE_REQUEST:
         case CourseActionTypes.DELETE_COURSE_REQUEST:
         case CourseActionTypes.UPDATE_COURSE_REQUEST:
@@ -25,6 +25,13 @@ const courseReducer = (state = initialState, action) => {
                 ...state,
                 loading: false,
                 courses: action.payload,
+            };
+
+        case CourseActionTypes.FETCH_COURSE_BY_ID_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                course: action.payload,
             };
 
         case CourseActionTypes.CREATE_COURSE_SUCCESS:
@@ -51,6 +58,7 @@ const courseReducer = (state = initialState, action) => {
             };
 
         case CourseActionTypes.FETCH_COURSE_FAILURE:
+        case CourseActionTypes.FETCH_COURSE_BY_ID_FAILURE:
         case CourseActionTypes.CREATE_COURSE_FAILURE:
         case CourseActionTypes.DELETE_COURSE_FAILURE:
         case CourseActionTypes.UPDATE_COURSE_FAILURE:

@@ -128,4 +128,3 @@ export const updateUser = (user) => {
         }
     };
 };
-// COURSE
