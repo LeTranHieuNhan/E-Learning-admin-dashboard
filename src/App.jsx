@@ -5,6 +5,7 @@ import CourseHome from "./pages/CourseHome";
 import CourseDetail from "./components/CourseDetail";
 import Layout from "./Layout";
 import CourseEdit from "./pages/CouseEdit";
+import Category from "./pages/Category";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                     <Route path="CourseEdit" element={<CourseEdit />} />
                     <Route path="CourseHome/:courseName" element={<CourseHome />} />
                     <Route path="CourseDetail/:courseName" element={<CourseDetail />} />
+                    <Route path="/Category" element={<Category />} />
                 </Route>
             </Routes>
         </BrowserRouter>
