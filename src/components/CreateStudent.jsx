@@ -1,9 +1,9 @@
-import {Dialog, DialogPanel} from "@headlessui/react";
-import {FileUpload} from "primereact/fileupload";
-import React, {useState, useEffect} from "react";
+import { Dialog, DialogPanel } from "@headlessui/react";
+import { FileUpload } from "primereact/fileupload";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create", student = null}) => {
+export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Create", student = null }) => {
     const [studentData, setStudentData] = useState({
         avatar: "",
         name: "",
@@ -30,8 +30,8 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
     }, [student]);
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
-        setStudentData({...studentData, [name]: value});
+        const { name, value } = e.target;
+        setStudentData({ ...studentData, [name]: value });
     };
 
     const handleFileUpload = async (event) => {
@@ -55,14 +55,14 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
             console.log("Upload successful:", response.data);
 
             if (response.data) {
-                setStudentData({...studentData, avatar: response.data});
+                setStudentData({ ...studentData, avatar: response.data });
             } else {
                 console.error("Upload successful, but no URL returned");
             }
         } catch (error) {
             console.error("Error uploading file:", error);
         } finally {
-            setIsUploading(false); // End the loading state
+            setIsUploading(false);
         }
     };
 
@@ -71,8 +71,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
 
         console.log("Image removed successfully");
 
-        // Clear the image URL from the state
-        setStudentData({...studentData, studentImg: ""});
+        setStudentData({ ...studentData, studentImg: "" });
 
     };
 
@@ -82,7 +81,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
             return;
         }
         onCreate(studentData);
-        setPasswordError(""); // Reset password error if passwords match
+        setPasswordError("");
     };
 
     return (
@@ -147,7 +146,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                     <form className="space-y-4">
                                         <div>
                                             <label htmlFor="name"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Full name
                                             </label>
                                             <input
@@ -160,7 +159,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                         </div>
                                         <div className="mt-[16px]">
                                             <label htmlFor="email"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Email
                                             </label>
                                             <input
@@ -173,7 +172,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                         </div>
                                         <div className="mt-[16px]">
                                             <label htmlFor="occupation"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Occupation
                                             </label>
                                             <input
@@ -186,7 +185,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                         </div>
                                         <div className="mt-[16px]">
                                             <label htmlFor="location"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Location
                                             </label>
                                             <select
@@ -215,7 +214,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                         </div>
                                         <div className="mt-[16px]">
                                             <label htmlFor="password"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Password
                                             </label>
                                             <input
@@ -228,7 +227,7 @@ export const CreateStudent = ({isOpen, setIsOpen, onCreate, actionName = "Create
                                         </div>
                                         <div className="mt-[16px]">
                                             <label htmlFor="confirmPassword"
-                                                   className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Confirm Password
                                             </label>
                                             <input

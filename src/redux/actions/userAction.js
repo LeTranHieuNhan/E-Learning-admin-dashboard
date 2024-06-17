@@ -113,6 +113,7 @@ export const updateUserFailure = (error) => ({
 });
 
 export const updateUser = (user) => {
+    console.log("call ?");
     return async (dispatch) => {
         dispatch(updateUserRequest());
         try {

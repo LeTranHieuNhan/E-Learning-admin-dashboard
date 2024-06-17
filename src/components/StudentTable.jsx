@@ -1,114 +1,119 @@
-import React, {useState, useEffect, useRef} from "react";
-import {CreateStudent} from "./CreateStudent";
-import {deleteUser, updateUser} from "../redux/actions/userAction";
-import {useDispatch} from "react-redux";
+import React, { useState, useEffect, useRef } from "react";
+import { CreateStudent } from "./CreateStudent";
+import { deleteUser, updateUser } from "../redux/actions/userAction";
+import { useDispatch } from "react-redux";
 
-const StudentTable = ({students = null}) => {
-        const [activeTab, setActiveTab] = useState("All users");
-        const [selectedStudentId, setSelectedStudentId] = useState(null);
-        const [currentPage, setCurrentPage] = useState(1);
-        const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-        const [studentToEdit, setStudentToEdit] = useState(null);
-        const studentsPerPage = 10;
-        const dispatch = useDispatch();
+const StudentTable = ({ students = null }) => {
+    const [activeTab, setActiveTab] = useState("All users");
+    const [selectedStudentId, setSelectedStudentId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [studentToEdit, setStudentToEdit] = useState(null);
+    const studentsPerPage = 10;
+    const dispatch = useDispatch();
 
-        const dropdownRef = useRef(null);
+    const dropdownRef = useRef(null);
 
-        const handleActionClick = (id) => {
-            setSelectedStudentId(selectedStudentId === id ? null : id);
-        };
+    const handleActionClick = (id) => {
+        setSelectedStudentId(selectedStudentId === id ? null : id);
+    };
 
-        const handleDelete = (studentId) => {
-            console.log(studentId)
-            if (window.confirm('Are you sure you want to delete this user?')) {
-                dispatch(deleteUser(studentId));
-            }
-        };
-
-        const handleEditClick = (student) => {
-
-            setStudentToEdit(student);
-            setIsEditModalOpen(true);
-        };
-        const handleEditUser = (student) => {
-            updateUser(student);
-            setIsEditModalOpen(false); // Close the modal after updating
+    const handleDelete = (studentId) => {
+        console.log(studentId)
+        if (window.confirm('Are you sure you want to delete this user?')) {
+            dispatch(deleteUser(studentId));
         }
+    };
 
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setSelectedStudentId(null);
-            }
+    const handleEditClick = (student) => {
+
+        setStudentToEdit(student);
+        setIsEditModalOpen(true);
+    };
+    const handleEditUser = (student) => {
+        console.log(student);
+
+        // Await the updateUser promise
+        dispatch(updateUser(student));
+
+        // Close the modal after updating
+        setIsEditModalOpen(false);
+    };
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setSelectedStudentId(null);
+        }
+    };
+    const truncateBio = (text, wordLimit) => {
+        const words = text.split(' ');
+        if (words.length > wordLimit) {
+            return words.slice(0, wordLimit).join(' ') + '...';
+        }
+        return text;
+    };
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-        const truncateBio = (text, wordLimit) => {
-            const words = text.split(' ');
-            if (words.length > wordLimit) {
-                return words.slice(0, wordLimit).join(' ') + '...';
-            }
-            return text;
-        };
-        useEffect(() => {
-            document.addEventListener("mousedown", handleClickOutside);
-            return () => {
-                document.removeEventListener("mousedown", handleClickOutside);
-            };
-        }, []);
+    }, []);
 
 
-        const filteredStudents = students.filter(
-            (student) =>
-                activeTab === "All users" ||
-                (activeTab === "ADMIN" && student?.role?.name === "ADMIN") ||
-                (activeTab === "USER" && student?.role?.name === "USER")
-        );
+    const filteredStudents = students.filter(
+        (student) =>
+            activeTab === "All users" ||
+            (activeTab === "ADMIN" && student?.role?.name === "ADMIN") ||
+            (activeTab === "USER" && student?.role?.name === "USER")
+    );
 
-        const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
-        const displayedStudents = filteredStudents.slice(
-            (currentPage - 1) * studentsPerPage,
-            currentPage * studentsPerPage
-        );
+    const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+    const displayedStudents = filteredStudents.slice(
+        (currentPage - 1) * studentsPerPage,
+        currentPage * studentsPerPage
+    );
 
-        const handlePageChange = (pageNumber) => {
-            setCurrentPage(pageNumber);
-        };
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
-        const handlePreviousPage = () => {
-            if (currentPage > 1) {
-                setCurrentPage(currentPage - 1);
-            }
-        };
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
-        const handleNextPage = () => {
-            if (currentPage < totalPages) {
-                setCurrentPage(currentPage + 1);
-            }
-        };
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
-        return (
-            <div className="bg-white p-4 rounded shadow">
-                <div className="mb-4">
-                    <button
-                        onClick={() => setActiveTab("All users")}
-                        className={`mr-4 ${activeTab === "All users" ? "font-bold" : ""}`}
-                    >
-                        All users
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("USER")}
-                        className={`mr-4 ${activeTab === "USER" ? "font-bold" : ""}`}
-                    >
-                        User
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("ADMIN")}
-                        className={`${activeTab === "ADMIN" ? "font-bold" : ""}`}
-                    >
-                        Admin
-                    </button>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+    return (
+        <div className="bg-white p-4 rounded shadow">
+            <div className="mb-4">
+                <button
+                    onClick={() => setActiveTab("All users")}
+                    className={`mr-4 ${activeTab === "All users" ? "font-bold" : ""}`}
+                >
+                    All users
+                </button>
+                <button
+                    onClick={() => setActiveTab("USER")}
+                    className={`mr-4 ${activeTab === "USER" ? "font-bold" : ""}`}
+                >
+                    User
+                </button>
+                <button
+                    onClick={() => setActiveTab("ADMIN")}
+                    className={`${activeTab === "ADMIN" ? "font-bold" : ""}`}
+                >
+                    Admin
+                </button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Name
@@ -129,8 +134,8 @@ const StudentTable = ({students = null}) => {
                                 Actions
                             </th>
                         </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {displayedStudents.map((student) => (
                             <tr key={student?.id}>
                                 <td className="px-6 py-4 whitespace-nowrap flex items-center">
@@ -150,13 +155,12 @@ const StudentTable = ({students = null}) => {
                                 <td className="px-6 py-4 whitespace-nowrap">{student?.occupation || "Student"}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            student?.role?.name === "USER"
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-red-100 text-red-800"
-                                        }`}
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${student?.role?.name === "USER"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-red-100 text-red-800"
+                                            }`}
                                     >
-                                       {student?.role?.name}
+                                        {student?.role?.name}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium relative">
@@ -224,69 +228,66 @@ const StudentTable = ({students = null}) => {
                                 </td>
                             </tr>
                         ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="mt-4 flex justify-center">
-                    <button
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1}
-                        className={`mx-1 px-3 py-1 border rounded ${
-                            currentPage === 1 ? "bg-gray-200 text-gray-500" : "bg-white text-gray-700"
-                        }`}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="w-4 h-4"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    {Array.from({length: totalPages}, (_, index) => index + 1).map((pageNumber) => (
-                        <button
-                            key={pageNumber}
-                            onClick={() => handlePageChange(pageNumber)}
-                            className={`mx-1 px-3 py-1 border rounded-md ${
-                                pageNumber === currentPage ? "bg-[#5860CAFF] text-white" : "bg-white text-gray-700"
-                            }`}
-                        >
-                            {pageNumber}
-                        </button>
-                    ))}
-                    <button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                        className={`mx-1 px-3 py-1 border rounded ${
-                            currentPage === totalPages ? "bg-gray-200 text-gray-500" : "bg-white text-gray-700"
-                        }`}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="w-4 h-4"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </div>
-                {/* Render the CreateStudent component */}
-                {isEditModalOpen && (
-                    <CreateStudent
-                        isOpen={isEditModalOpen}
-                        setIsOpen={setIsEditModalOpen}
-                        onCreate={handleEditUser}
-                        actionName="Edit"
-                        student={studentToEdit} // Pass the student data to be edited
-                    />
-                )}
+                    </tbody>
+                </table>
             </div>
-        );
-    }
-;
+            <div className="mt-4 flex justify-center">
+                <button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className={`mx-1 px-3 py-1 border rounded ${currentPage === 1 ? "bg-gray-200 text-gray-500" : "bg-white text-gray-700"
+                        }`}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                    <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`mx-1 px-3 py-1 border rounded-md ${pageNumber === currentPage ? "bg-[#5860CAFF] text-white" : "bg-white text-gray-700"
+                            }`}
+                    >
+                        {pageNumber}
+                    </button>
+                ))}
+                <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`mx-1 px-3 py-1 border rounded ${currentPage === totalPages ? "bg-gray-200 text-gray-500" : "bg-white text-gray-700"
+                        }`}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+            {/* Render the CreateStudent component */}
+            {isEditModalOpen && (
+                <CreateStudent
+                    isOpen={isEditModalOpen}
+                    setIsOpen={setIsEditModalOpen}
+                    onCreate={handleEditUser}
+                    actionName="Edit"
+                    student={studentToEdit} // Pass the student data to be edited
+                />
+            )}
+        </div>
+    );
+}
+    ;
 
 export default StudentTable;
