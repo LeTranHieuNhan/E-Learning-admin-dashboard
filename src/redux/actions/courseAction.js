@@ -38,6 +38,7 @@ export const fetchCourses = () => {
 };
 
 // Create Course Actions
+// Create Course Actions
 export const createCourseRequest = () => ({
     type: CourseActionTypes.CREATE_COURSE_REQUEST,
 });
@@ -52,22 +53,31 @@ export const createCourseFailure = (error) => ({
     payload: error,
 });
 
-export const createCourse = (course) => {
+/**
+ * Create a course with the given course data, userID (teacher ID), and categoryID.
+ * @param {Object} course - The course data to be sent to the server.
+ * @param {number} userID - The ID of the user (teacher) creating the course.
+ * @param {number} categoryID - The ID of the category for the course.
+ */
+export const createCourse = (course, userID, categoryID) => {
     return async (dispatch) => {
         dispatch(createCourseRequest());
         try {
             const token = getToken();
-            const response = await axios.post(`${API_URL}/courses`, course, {
+            // Post request with userID and categoryID in the URL
+            const response = await axios.post(`${API_URL}/courses/${userID}/${categoryID}`, course, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            console.log(response.data);
             dispatch(createCourseSuccess(response.data));
         } catch (error) {
             dispatch(createCourseFailure(error.message));
         }
     };
 };
+
 
 // Delete Course Actions
 export const deleteCourseRequest = () => ({
