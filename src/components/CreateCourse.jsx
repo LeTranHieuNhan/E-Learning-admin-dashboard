@@ -9,13 +9,14 @@ import { useNavigate } from "react-router-dom";
 
 function CreateCourse() {
     const [title, setTitle] = useState("");
-    const [images, setImages] = useState([]); // Store uploaded image URLs
+    const [images, setImages] = useState([]);
     const [categoryInput, setCategoryInput] = useState("");
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [description, setDescription] = useState("");
-    const [courseDuration, setCourseDuration] = useState("");
+    const [course_duration, setcourse_duration] = useState("");
     const [selectedTeacher, setSelectedTeacher] = useState("");
-    const [isUploading, setIsUploading] = useState(false); // Loading state for image upload
+    const [isUploading, setIsUploading] = useState(false);
+
     const dispatch = useDispatch();
     const categoryRef = useRef(null);
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ function CreateCourse() {
         category.name.toLowerCase().includes(categoryInput.toLowerCase())
     );
 
-    // Updated handleImageUpload function to upload image to server
+    // Handle image upload
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -54,7 +55,7 @@ function CreateCourse() {
             });
 
             if (response.data) {
-                setImages([...images, response.data]); // Assume response.data is the URL of the uploaded image
+                setImages([...images, response.data]);
             } else {
                 console.error("Upload successful, but no URL returned");
             }
@@ -80,10 +81,6 @@ function CreateCourse() {
         }
     };
 
-    const removeImage = (index) => {
-        setImages(images.filter((_, i) => i !== index));
-    };
-
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
@@ -98,12 +95,11 @@ function CreateCourse() {
         const courseData = {
             title,
             description,
-            courseDuration,
-            images, // Use the uploaded image URLs
+            course_duration,
+            images,
         };
 
         if (selectedTeacher && categoryID) {
-            console.log(courseData.images);
             dispatch(createCourse(courseData, selectedTeacher, categoryID));
             navigate("/CourseManagement")
         } else {
@@ -187,8 +183,8 @@ function CreateCourse() {
                     <input
                         type="text"
                         className="mt-1 p-1 block w-full h-[40px] bg-[#F3F4F6FF] border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-                        value={courseDuration}
-                        onChange={(e) => setCourseDuration(e.target.value)}
+                        value={course_duration}
+                        onChange={(e) => setcourse_duration(e.target.value)}
                     />
                 </div>
                 <div className="w-full md:w-1/2 pl-2 mb-6">
@@ -233,7 +229,7 @@ function CreateCourse() {
                             />
                             <button
                                 className="absolute top-0 right-0 bg-red-500 text-white p-1"
-                                onClick={() => removeImage(index)}
+                                onClick={() => setImages(images.filter((_, i) => i !== index))}
                             >
                                 &times;
                             </button>
@@ -247,7 +243,7 @@ function CreateCourse() {
                             type="file"
                             className="hidden"
                             onChange={handleImageUpload}
-                            disabled={isUploading} // Disable input during upload
+                            disabled={isUploading}
                         />
                     </label>
                 </div>

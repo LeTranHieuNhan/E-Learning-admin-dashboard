@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../components/Sidebar";
-import CourseCard from "../components/CourseCard";
+import CourseCard from "../components/CoursesList";
 
 function CourseManagement() {
   return (

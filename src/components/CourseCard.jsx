@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteCourse, fetchCourses } from "../redux/actions/courseAction";
-
+import EditCourseModal from "./EditCourseModal"; // Import the modal component
 const colors = [
     "bg-[#32AC71FF]",
     "bg-gray-500",
@@ -15,14 +13,13 @@ const colors = [
 const getRandomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
 };
-
-
 const CourseCard = ({ course, onDelete }) => {
     const [showActions, setShowActions] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const actionsRef = useRef(null);
     const location = useLocation();
     const [bgColor, setBgColor] = useState(getRandomColor());
-    const navigate = useNavigate(); // Hook to navigate programmatically
+    const navigate = useNavigate();
 
     const handleActionClick = (event) => {
         event.preventDefault();
@@ -34,7 +31,7 @@ const CourseCard = ({ course, onDelete }) => {
             setShowActions(false);
         }
     };
-    console.log(course?.id);
+
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
@@ -45,6 +42,9 @@ const CourseCard = ({ course, onDelete }) => {
     useEffect(() => {
         setShowActions(false);
     }, [location]);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
     return (
         <div className={`w-[237px] h-[229px] rounded-[6px] ${bgColor} relative`}>
@@ -66,12 +66,9 @@ const CourseCard = ({ course, onDelete }) => {
                 </div>
             </Link>
             {showActions && (
-                <div
-                    ref={actionsRef}
-                    className="absolute top-2 right-3 mt-8 mr-2 bg-white border border-gray-200 rounded shadow-lg z-10"
-                >
+                <div ref={actionsRef} className="absolute top-2 right-3 mt-8 mr-2 bg-white border border-gray-200 rounded shadow-lg z-10">
                     <div
-                        onClick={() => navigate(`/CourseEdit/${course?.id}`)} // Navigate with course ID
+                        onClick={openModal}
                         className="flex items-center px-4 py-2 text-yellow-600 hover:bg-yellow-100 cursor-pointer"
                     >
                         <svg
@@ -115,50 +112,9 @@ const CourseCard = ({ course, onDelete }) => {
                     </div>
                 </div>
             )}
+            <EditCourseModal course={course} isOpen={isModalOpen} onClose={closeModal} />
         </div>
     );
 };
 
-const CourseList = () => {
-    const dispatch = useDispatch();
-    const courses = useSelector((state) => state.courses.courses);
-    const loading = useSelector((state) => state.courses.loading);
-    const error = useSelector((state) => state.courses.error);
-
-    useEffect(() => {
-        dispatch(fetchCourses());
-    }, [dispatch]);
-
-    const handleDeleteCourse = (courseId) => {
-        if (window.confirm("Are you sure you want to delete this course?")) {
-            dispatch(deleteCourse(courseId));
-        }
-    };
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
-
-    return (
-        <div className="relative p-4">
-            <div className="absolute top-4 left-4">
-                <Link to="/CourseEdit">
-                    <button className="bg-[#6E75D1FF] text-white px-4 py-2 rounded hover:bg-purple-700">
-                        Create Course
-                    </button>
-                </Link>
-            </div>
-            <div className="flex flex-wrap mt-16 gap-4">
-                {courses.map((course) => (
-                    <CourseCard key={course.id} course={course} onDelete={handleDeleteCourse} />
-                ))}
-            </div>
-        </div>
-    );
-};
-
-export default CourseList;
+export default CourseCard;
