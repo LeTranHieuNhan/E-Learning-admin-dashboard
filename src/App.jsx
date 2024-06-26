@@ -7,6 +7,8 @@ import Layout from "./Layout";
 import CourseEdit from "./pages/CouseEdit";
 import Category from "./pages/Category";
 import CreateCourse from "./components/CreateCourse";
+import CreateVideo from "./components/CreateVideo";
+import RecordLibrary from "./pages/RecordLibrary";
 
 function App() {
     return (
@@ -21,7 +23,8 @@ function App() {
                     <Route path="CourseDetail/:courseName" element={<CourseDetail />} />
                     <Route path="/Category" element={<Category />} />
                     <Route path="/CourseEdit/:id" element={<CreateCourse />} />
-
+                    <Route path="/CreateVideo" element={<CreateVideo />} />
+                    <Route path="/RecordingManagement" element={<RecordLibrary />} />
                 </Route>
             </Routes>
         </BrowserRouter>
