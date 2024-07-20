@@ -1,5 +1,6 @@
-import { UserActionTypes } from "./actionTypes";
+// src/actions/userActions.js
 import axios from 'axios';
+import {UserActionTypes} from "./actionTypes";
 
 const API_URL = 'http://localhost:8080/api/v1';
 
@@ -112,13 +113,12 @@ export const updateUserFailure = (error) => ({
     payload: error,
 });
 
-export const updateUser = (user) => {
-    console.log("call ?");
+export const updateUser = (id, user, roleId) => {
     return async (dispatch) => {
         dispatch(updateUserRequest());
         try {
             const token = getToken();
-            const response = await axios.put(`${API_URL}/users/${user.id}`, user, {
+            const response = await axios.put(`${API_URL}/users/${id}?roleId=${roleId}`, user, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -126,6 +126,37 @@ export const updateUser = (user) => {
             dispatch(updateUserSuccess(response.data));
         } catch (error) {
             dispatch(updateUserFailure(error.message));
+        }
+    };
+};
+
+export const assignRoleRequest = () => ({
+    type: UserActionTypes.ASSIGN_ROLE_REQUEST,
+});
+
+export const assignRoleSuccess = (user) => ({
+    type: UserActionTypes.ASSIGN_ROLE_SUCCESS,
+    payload: user,
+});
+
+export const assignRoleFailure = (error) => ({
+    type: UserActionTypes.ASSIGN_ROLE_FAILURE,
+    payload: error,
+});
+
+export const assignRole = (roleId, userId) => {
+    return async (dispatch) => {
+        dispatch(assignRoleRequest());
+        try {
+            const token = getToken();
+            const response = await axios.put(`${API_URL}/users/assign/${roleId}/${userId}`, null, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            dispatch(assignRoleSuccess(response.data));
+        } catch (error) {
+            dispatch(assignRoleFailure(error.message));
         }
     };
 };

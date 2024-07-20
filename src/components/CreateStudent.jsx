@@ -1,22 +1,26 @@
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { FileUpload } from "primereact/fileupload";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import apiClient from '../axiosSetup';
+import { fetchRoles } from "../redux/actions/roleActions";
 
 export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Create", student = null }) => {
     const [studentData, setStudentData] = useState({
         avatar: "",
         name: "",
         email: "",
-        location: "United States",
         bio: "",
         occupation: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        role: "USER" // Default role
     });
 
     const [passwordError, setPasswordError] = useState("");
     const [isUploading, setIsUploading] = useState(false);
+
+    const dispatch = useDispatch();
+    const { roles, loading, error } = useSelector(state => state.roles);
 
     useEffect(() => {
         if (student) {
@@ -24,10 +28,15 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                 ...student,
                 avatar: student.avatar || "", // Assuming avatar is the image URL
                 password: "",
-                confirmPassword: ""
+                confirmPassword: "",
+                role: student.role.name || "USER" // Assuming role.name exists
             });
         }
     }, [student]);
+
+    useEffect(() => {
+        dispatch(fetchRoles());
+    }, [dispatch]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,24 +44,20 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
     };
 
     const handleFileUpload = async (event) => {
-        const file = event.target.files[0]; // Corrected file access
-        console.log("File selected:", file)
-
+        const file = event.target.files[0];
         if (!file) return;
 
         setIsUploading(true); // Start the loading state
 
         const formData = new FormData();
-        formData.append("image", file); // Use 'image' to match backend parameter
+        formData.append("image", file);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/v1/files/upload', formData, {
+            const response = await apiClient.post('/files/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-
-            console.log("Upload successful:", response.data);
 
             if (response.data) {
                 setStudentData({ ...studentData, avatar: response.data });
@@ -66,13 +71,8 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
         }
     };
 
-    const handleRemoveImage = async () => {
-
-
-        console.log("Image removed successfully");
-
-        setStudentData({ ...studentData, studentImg: "" });
-
+    const handleRemoveImage = () => {
+        setStudentData({ ...studentData, avatar: "" });
     };
 
     const handleSubmit = () => {
@@ -80,23 +80,25 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
             setPasswordError("Passwords do not match");
             return;
         }
-        onCreate(studentData);
+        const payload = {
+            ...studentData,
+            role: {
+                id: roles.find(role => role.name === studentData.role)?.id,
+                name: studentData.role
+            }
+        };
+        onCreate(payload);
         setPasswordError("");
     };
 
     return (
         <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed inset-0 z-50 overflow-y-auto">
-            {/* Overlay */}
             <div className="fixed inset-0 bg-black opacity-50"></div>
-
             <div className="flex items-center justify-center min-h-screen">
-                <DialogPanel
-                    className="relative z-10 space-y-4 border rounded-md shadow-md bg-white p-6 w-[752px] h-auto">
+                <DialogPanel className="relative z-10 space-y-4 border rounded-md shadow-md bg-white p-6 w-[752px] h-auto">
                     <div className="grid grid-cols-3">
                         <div className="col-span-1">
-                            <div className="flex gap-2 items-center p-1">
-                                {/* Icons and labels */}
-                            </div>
+                            <div className="flex gap-2 items-center p-1"></div>
                         </div>
                         <div className="col-span-2">
                             <div className="ml-[48px]">
@@ -139,14 +141,12 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                                                 Uploading...
                                             </p>
                                         )}
-
                                     </ul>
                                 </div>
                                 <div className="mt-[20px]">
                                     <form className="space-y-4">
                                         <div>
-                                            <label htmlFor="name"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
+                                            <label htmlFor="name" className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Full name
                                             </label>
                                             <input
@@ -158,8 +158,7 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label htmlFor="email"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
+                                            <label htmlFor="email" className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Email
                                             </label>
                                             <input
@@ -171,33 +170,30 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label htmlFor="occupation"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
+                                            <label htmlFor="occupation" className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Occupation
                                             </label>
                                             <input
                                                 type="text"
                                                 name="occupation"
-                                                value={studentData.email}
+                                                value={studentData.occupation}
                                                 onChange={handleChange}
                                                 className="w-[420px] h-[36px] text-[14px] leading-[22px] font-sans font-normal bg-[#F3F4F6FF] rounded-md p-2"
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label htmlFor="location"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
-                                                Location
+                                            <label htmlFor="role" className="block text-[14px] leading-[22px] font-sans font-bold">
+                                                Role
                                             </label>
                                             <select
-                                                name="location"
-                                                value={studentData.location}
+                                                name="role"
+                                                value={studentData.role}
                                                 onChange={handleChange}
                                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             >
-                                                <option>United States</option>
-                                                <option>Canada</option>
-                                                <option>France</option>
-                                                <option>Germany</option>
+                                                {roles.map((role) => (
+                                                    <option key={role.id} value={role.name}>{role.name}</option>
+                                                ))}
                                             </select>
                                         </div>
                                         <div className="mt-[16px]">
@@ -213,8 +209,7 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                                             ></textarea>
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label htmlFor="password"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
+                                            <label htmlFor="password" className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Password
                                             </label>
                                             <input
@@ -226,8 +221,7 @@ export const CreateStudent = ({ isOpen, setIsOpen, onCreate, actionName = "Creat
                                             />
                                         </div>
                                         <div className="mt-[16px]">
-                                            <label htmlFor="confirmPassword"
-                                                className="block text-[14px] leading-[22px] font-sans font-bold">
+                                            <label htmlFor="confirmPassword" className="block text-[14px] leading-[22px] font-sans font-bold">
                                                 Confirm Password
                                             </label>
                                             <input
