@@ -1,4 +1,4 @@
-// src/actions/userActions.js
+                // src/actions/userActions.js
 import axios from 'axios';
 import {UserActionTypes} from "./actionTypes";
 
@@ -157,6 +157,31 @@ export const assignRole = (roleId, userId) => {
             dispatch(assignRoleSuccess(response.data));
         } catch (error) {
             dispatch(assignRoleFailure(error.message));
+        }
+    };
+};
+export const fetchNewUsersRequest = () => ({
+    type: UserActionTypes.FETCH_NEW_USERS_REQUEST,
+});
+
+export const fetchNewUsersSuccess = (newUsers) => ({
+    type: UserActionTypes.FETCH_NEW_USERS_SUCCESS,
+    payload: newUsers,
+});
+
+export const fetchNewUsersFailure = (error) => ({
+    type: UserActionTypes.FETCH_NEW_USERS_FAILURE,
+    payload: error,
+});
+
+export const fetchNewUsers = () => {
+    return async (dispatch) => {
+        dispatch(fetchNewUsersRequest());
+        try {
+            const response = await axios.get(`${API_URL}/users/newUsers`);
+            dispatch(fetchNewUsersSuccess(response.data));
+        } catch (error) {
+            dispatch(fetchNewUsersFailure(error.message));
         }
     };
 };

@@ -1,54 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useSelector, useDispatch } from "react-redux";
-import { createUser, fetchUsers } from "../redux/actions/userAction";
+import { createUser, fetchUsers, fetchNewUsers } from "../redux/actions/userAction";
 import StudentCard from "./StudentCard";
 import StudentTable from "./StudentTable";
 import { CreateStudent } from "./CreateStudent";
-
-const newClients = [
-    {
-        id: 1,
-        name: "Cody Fisher",
-        tag: "#37295",
-        status: "New lead",
-        aboutMe: "Fugiat laborum non ani",
-        studentImg:
-            "https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg",
-    },
-    {
-        id: 2,
-        name: "Tlalli Miski",
-        tag: "#37294",
-        status: "New lead",
-        aboutMe: "Fugiat laborum non ani",
-        studentImg:
-            "https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg",
-    },
-    {
-        id: 3,
-        name: "John Cooper",
-        tag: "#37293",
-        status: "Proposal",
-        aboutMe: "Fugiat laborum non ani",
-        studentImg:
-            "https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg",
-    },
-];
 
 const StudentList = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
     const students = useSelector((state) => state.users.users);
-
+    const newUsers = useSelector((state) => state.users.newUsers);
+    const loadingNewUsers = useSelector((state) => state.users.loadingNewUsers);
+    const errorNewUsers = useSelector((state) => state.users.errorNewUsers);
+    console.log("newUsers", newUsers)
     useEffect(() => {
         dispatch(fetchUsers());
+        dispatch(fetchNewUsers());
     }, [dispatch]);
 
-    const handleCreateStudent = (newStudent) => {
-        console.log(newStudent)
-        dispatch(createUser(newStudent));
-        setIsOpen(false);
+    const handleCreateStudent = async (newStudent) => {
+        try {
+            dispatch(createUser(newStudent));
+            setIsOpen(false);
+        } catch (error) {
+            console.error("Failed to create student", error);
+        }
     };
 
     return (
@@ -85,14 +62,17 @@ const StudentList = () => {
                 <h3 className="text-[#323842FF] text-[18px] leading-[28px] font-sans font-normal mb-4">
                     New clients this week
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {newClients.map((client) => (
-                        <StudentCard key={client.id} client={client} />
-                    ))}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Render actual students here */}
-                </div>
+                {loadingNewUsers ? (
+                    <div>Loading new users...</div>
+                ) : errorNewUsers ? (
+                    <div>Error loading new users: {errorNewUsers}</div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {newUsers && newUsers.map((client) => (
+                            <StudentCard key={client.id} client={client} />
+                        ))}
+                    </div>
+                )}
             </div>
             <StudentTable students={students} />
 

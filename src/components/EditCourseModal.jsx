@@ -5,15 +5,16 @@ import { fetchUsers } from "../redux/actions/userAction";
 import TextEditor from "./TextEditor";
 import axios from "axios";
 import { updateCourse } from "../redux/actions/courseAction";
+import {login} from "../redux/actions/authAction";
 
 const EditCourseModal = ({ course, isOpen, onClose }) => {
-    const [title, setTitle] = useState(course.title || "");
-    const [images, setImages] = useState(course.images || []);
-    const [categoryInput, setCategoryInput] = useState(course.category.name || "");
+    const [title, setTitle] = useState(course?.title || "");
+    const [images, setImages] = useState(course?.images || []);
+    const [categoryInput, setCategoryInput] = useState(course?.category?.name || "");
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [description, setDescription] = useState(course.description || "");
-    const [course_duration, setcourse_duration] = useState(course.course_duration || "");
-    const [selectedTeacher, setSelectedTeacher] = useState(course.user?.id || "");
+    const [description, setDescription] = useState(course?.description || "");
+    const [course_duration, setcourse_duration] = useState(course?.course_duration || "");
+    const [selectedTeacher, setSelectedTeacher] = useState(course?.user?.id || "");
     const [isUploading, setIsUploading] = useState(false);
 
     const dispatch = useDispatch();
@@ -97,6 +98,7 @@ const EditCourseModal = ({ course, isOpen, onClose }) => {
 
         if (selectedTeacher && categoryID) {
             dispatch(updateCourse(courseData, selectedTeacher, categoryID));
+            console.log(images)
             onClose(); // Close the modal after submission
         } else {
             alert("Please select a valid teacher and category.");

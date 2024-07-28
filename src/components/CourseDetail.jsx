@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseById } from "../redux/actions/courseAction";
-import EditCourseModal from "./EditCourseModal"; // Import the EditCourseModal component
+import EditCourseModal from "./EditCourseModal";
+import CourseNavbar from "./CourseNavbar"; // Import the EditCourseModal component
 
 const CourseDetail = () => {
   const { courseName } = useParams();
@@ -92,7 +93,7 @@ const CourseDetail = () => {
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="font-bold mb-2">Class Code</h2>
             <p className="text-[#33864FFF] text-[18px] leading-[28px] font-normal">
-              {course?.classCode || "N/A"}
+              {course?.id || "N/A"}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md mt-2">
@@ -127,33 +128,6 @@ const CourseDetail = () => {
   );
 };
 
-const CourseNavbar = () => {
-  const { courseName } = useParams();
 
-  return (
-    <ul className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-6 gap-6 list-none text-[#565E6CFF] text-[14px] leading-[18px] font-normal">
-      <li className="menu-item">
-        <Link to={`/CourseHome/${courseName}`} className="hover:text-[#4D7E43FF]">
-          Home
-        </Link>
-      </li>
-      <li className="menu-item">
-        <Link to={`/CourseAssignments/${courseName}`} className="hover:text-[#4D7E43FF]">
-          Assignments
-        </Link>
-      </li>
-      <li className="menu-item">
-        <Link to={`/CoursePeople/${courseName}`} className="hover:text-[#4D7E43FF]">
-          Everyone
-        </Link>
-      </li>
-      <li className="menu-item">
-        <Link to={`/CourseGrades/${courseName}`} className="hover:text-[#4D7E43FF]">
-          Grade
-        </Link>
-      </li>
-    </ul>
-  );
-};
 
 export default CourseDetail;

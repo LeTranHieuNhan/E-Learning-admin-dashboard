@@ -7,9 +7,13 @@ import VideoEditModal from "./VideoEditModal";
 const VideoCard = ({ video, courses }) => {
     const [duration, setDuration] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [randomLikes, setRandomLikes] = useState(0);
+    const [randomComments, setRandomComments] = useState(0);
+    const [randomViews, setRandomViews] = useState(0);
     const videoRef = useRef(null);
     const dispatch = useDispatch();
-
+    const [teacherName, setTeacherName] = useState(null);
+    const [teacherAvatar, setTeacherAvatar] = useState(null);
     useEffect(() => {
         const handleLoadedMetadata = () => {
             if (videoRef.current) {
@@ -22,12 +26,26 @@ const VideoCard = ({ video, courses }) => {
             currentVideo.addEventListener('loadedmetadata', handleLoadedMetadata);
         }
 
+        // Clean up
         return () => {
             if (currentVideo) {
                 currentVideo.removeEventListener('loadedmetadata', handleLoadedMetadata);
             }
         };
     }, []);
+
+    useEffect(() => {
+        setRandomLikes(Math.floor(Math.random() * 20));       // Random likes from 0 to 19
+        setRandomComments(Math.floor(Math.random() * 10));    // Random comments from 0 to 9
+        setRandomViews(Math.floor(Math.random() * 20));       // Random views from 0 to 19
+
+        // Find the course matching the video's course ID
+        const matchedCourse = courses.find(course => course.id === video.course.id);
+        if (matchedCourse && matchedCourse.user) {
+            setTeacherName(matchedCourse.user.name || "Teacher's name unavailable");
+            setTeacherAvatar(matchedCourse.user.avatar || "https://via.placeholder.com/150");
+        }
+    }, [courses, video.course.id]);
 
     const handleDelete = () => {
         if (window.confirm(`Are you sure you want to delete ${video.title}?`)) {
@@ -90,23 +108,23 @@ const VideoCard = ({ video, courses }) => {
                 <h2 className="text-xl font-semibold mb-2">{video.title}</h2>
                 <div className="flex gap-2 text-sm mb-2">
                     <span className="bg-[#FEFAEBFF] text-[#7A6108FF] px-2 py-1 rounded-xl">
-                        {video?.views} views
+                        {randomViews} views
                     </span>
                     <span className="bg-[#F3F4FBFF] text-[#6E75D1FF] px-2 py-1 rounded">
-                        {video?.likes} likes
+                        {randomLikes} likes
                     </span>
                     <span className="bg-[#FFF4F0FF] text-[#FE763EFF] px-2 py-1 rounded">
-                        {video?.comments} comments
+                        {randomComments} comments
                     </span>
                 </div>
                 <div className="flex items-center mb-2 mt-2">
                     <img
-                        src={video.userImg}
-                        alt={video.username}
+                        src={video.userImg || teacherAvatar}
+                        alt={video.username || "Teacher"}
                         className="w-10 h-10 rounded-full mr-2"
                     />
                     <div>
-                        <p className="text-sm font-medium">{video?.username}</p>
+                        <p className="text-sm font-medium">{video?.username || teacherName}</p>
                         <p className="text-sm text-gray-500">{video?.postedTime}</p>
                     </div>
                 </div>

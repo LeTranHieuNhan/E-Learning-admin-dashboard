@@ -13,7 +13,6 @@ const LibraryVideo = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [editVideo, setEditVideo] = useState(null);
     const [editForm, setEditForm] = useState({});
-    console.log(courses);
     useEffect(() => {
         dispatch(fetchCourses()); // Fetch all courses on component mount
     }, [dispatch]);
@@ -99,7 +98,7 @@ const LibraryVideo = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {videos.map((video) => (
-                        <VideoCard key={video.id} video={video} onEdit={handleEdit} />
+                        <VideoCard courses={courses}  key={video.id} video={video} onEdit={handleEdit} />
                     ))}
                 </div>
             )}

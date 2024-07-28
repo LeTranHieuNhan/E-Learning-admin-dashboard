@@ -4,17 +4,17 @@ const StudentCard = ({ client }) => {
   return (
     <div className="bg-white p-4 rounded shadow flex ">
       <img
-        src={client.studentImg}
+        src={client.avatar}
         alt={client.name}
         className="w-16 h-16 rounded-full mr-4"
       />
       <div>
         <div className="mb-2">
           <div className="text-lg font-semibold">{client.name}</div>
-          <div className="text-gray-500">{client.aboutMe}</div>
+          <div className="text-gray-500">{client.bio || "#None Bio" }</div>
         </div>
         <div className="text-sm text-gray-600">
-          <div className="text-gray-700">Lead {client.lead}</div>
+          <div className="text-gray-700">Lead {client.id}</div>
           <div className="flex items-center gap-2 mt-1">
             <div className="text-[#379AE6FF] text-[14px] leading-[22px] font-sans font-normal">
               {client.tag}

@@ -56,6 +56,25 @@ const userReducer = (state = initialState, action) => {
                 loading: false,
                 error: action.payload,
             };
+        case UserActionTypes.FETCH_NEW_USERS_REQUEST:
+            return {
+                ...state,
+                loadingNewUsers: true
+            };
+        case UserActionTypes.FETCH_NEW_USERS_SUCCESS:
+            return {
+                ...state,
+                loadingNewUsers: false,
+                newUsers: action.payload,
+                errorNewUsers: ''
+            };
+        case UserActionTypes.FETCH_NEW_USERS_FAILURE:
+            return {
+                ...state,
+                loadingNewUsers: false,
+                newUsers: [],
+                errorNewUsers: action.payload
+            };
         default:
             return state;
     }

@@ -74,7 +74,8 @@ export const deleteCourseSession = (id) => async (dispatch) => {
 // Fetch Sessions By Course ID Actions
 export const fetchCourseSessionsByCourseId = (courseId) => async (dispatch) => {
     dispatch(createAction(CourseSessionActionTypes.FETCH_SESSIONS_BY_COURSE_ID_REQUEST));
-    const { data, error } = await apiRequest('get', `${API_URL}/course_sessions/${courseId}`);
+    const { data, error } = await apiRequest('get', `${API_URL}/course/${courseId}`);
+
     if (data) {
         dispatch(createAction(CourseSessionActionTypes.FETCH_SESSIONS_BY_COURSE_ID_SUCCESS, data));
     } else {
